@@ -17,9 +17,9 @@
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
     "group": { "default": "Other" },
-    "title": { "default": "DemoSPFX" },
-    "description": { "default": "DemoSPFX description" },
-    "officeFabricIconFontName": "Page",
+    "title": { "default": "Demo SPFX" },
+    "description": { "default": "Demo SPFX Web Part" },
+    "officeFabricIconFontName": "TestBeakerSolid",
     "properties": {
       "description": "DemoSPFX"
     }
