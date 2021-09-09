@@ -11,16 +11,43 @@ import * as strings from 'DemoSpfxWebPartStrings';
 import DemoSpfx from './components/DemoSpfx';
 import { IDemoSpfxProps } from './components/IDemoSpfxProps';
 
+// DG - 09/09/2021 - Supporting section backgrounds
+import {
+  ThemeProvider,
+  ThemeChangedEventArgs,
+  IReadonlyTheme,
+  ISemanticColors
+} from '@microsoft/sp-component-base';
+//////////// DG - 09/09/2021
+
 export interface IDemoSpfxWebPartProps {
   description: string;
 }
 
 export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebPartProps> {
+  // DG - 09/09/2021 - Supporting section backgrounds
+  private _themeProvider: ThemeProvider;
+  private _themeVariant: IReadonlyTheme | undefined;
+
+  protected onInit(): Promise<void> {
+    // Consume the new ThemeProvider service
+    this._themeProvider = this.context.serviceScope.consume(ThemeProvider.serviceKey);
+
+    // If it exists, get the theme variant
+    this._themeVariant = this._themeProvider.tryGetTheme();
+
+    // Register a handler to be notified if the theme variant changes
+    this._themeProvider.themeChangedEvent.add(this, this._handleThemeChangedEvent);
+
+    return super.onInit();
+  }
+  //////////// DG - 09/09/2021
 
   public render(): void {
     const element: React.ReactElement<IDemoSpfxProps> = React.createElement(
       DemoSpfx,
       {
+        themeVariant: this._themeVariant,
         description: this.properties.description
       }
     );
@@ -57,4 +84,16 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
       ]
     };
   }
+
+  // DG - 09/09/2021 - Supporting section backgrounds
+  /**
+   * Update the current theme variant reference and re-render.
+   *
+   * @param args The new theme
+   */
+  private _handleThemeChangedEvent(args: ThemeChangedEventArgs): void {
+    this._themeVariant = args.theme;
+    this.render();
+  }
+  //////////// DG - 09/09/2021
 }

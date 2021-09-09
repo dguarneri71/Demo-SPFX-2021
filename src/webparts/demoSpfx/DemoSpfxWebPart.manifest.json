@@ -4,6 +4,10 @@
   "alias": "DemoSpfxWebPart",
   "componentType": "WebPart",
 
+  // DG - 09/09/2021 - Supporting section backgrounds
+  "supportsThemeVariants": true,
+  //////////// DG - 09/09/2021
+
   // The "*" signifies that the version should be taken from the package.json
   "version": "*",
   "manifestVersion": 2,
