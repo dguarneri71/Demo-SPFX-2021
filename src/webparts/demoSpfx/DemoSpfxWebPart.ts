@@ -21,6 +21,12 @@ import {
 import { ListSubscriptionFactory } from '@microsoft/sp-list-subscription';
 //////////// DG - 09/09/2021
 
+// DG - 10/09/2021 - PnP Controls and Properties Pane
+import { PropertyFieldListPicker, PropertyFieldListPickerOrderBy } from '@pnp/spfx-property-controls/lib/PropertyFieldListPicker';
+import { CalloutTriggers } from '@pnp/spfx-property-controls/lib/PropertyFieldHeader';
+import { PropertyFieldTextWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldTextWithCallout';
+//////////// DG - 10/09/2021
+
 export interface IDemoSpfxWebPartProps {
   description: string;
   libraryId?: string;
@@ -31,7 +37,7 @@ export interface IDemoSpfxWebPartProps {
 export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebPartProps> {
   // DG - 09/09/2021 - Supporting section backgrounds
   private _themeProvider: ThemeProvider;
-  private _themeVariant: IReadonlyTheme | undefined;
+  private _themeVariant: IReadonlyTheme | undefined;  
 
   protected onInit(): Promise<void> {
     // Consume the new ThemeProvider service
@@ -54,6 +60,7 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
         themeVariant: this._themeVariant, // DG - 09/09/2021 - Supporting section backgrounds
         width: this.width, // DG - 10/09/2021 - Determine the rendered web part size
         description: this.properties.description,
+        wpContext: this.context, // DG - 10/09/2021 - Data Service
         displayMode: this.displayMode, // DG - 10/09/2021 - Subscribe to list notifications
         libraryId: this.properties.libraryId, // DG - 10/09/2021 - Subscribe to list notifications
         listSubscriptionFactory: new ListSubscriptionFactory(this), // DG - 10/09/2021 - Subscribe to list notifications
@@ -94,6 +101,29 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
               groupFields: [
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
+                }),
+                PropertyFieldTextWithCallout('siteUrl', {
+                  calloutTrigger: CalloutTriggers.Click,
+                  key: 'siteUrlFieldId',
+                  label: 'Site URL',
+                  calloutContent: React.createElement('span', {}, 'URL of the site where the document library to show documents from is located. Leave empty to connect to a document library from the current site'),
+                  calloutWidth: 250,
+                  value: this.properties.siteUrl
+                }),
+                PropertyFieldListPicker('libraryId', {
+                  label: 'Select a document library',
+                  selectedList: this.properties.libraryId,
+                  includeHidden: false,
+                  orderBy: PropertyFieldListPickerOrderBy.Title,
+                  disabled: false,
+                  onPropertyChange: this.onPropertyPaneFieldChanged.bind(this),
+                  properties: this.properties,
+                  context: this.context,
+                  onGetErrorMessage: null,
+                  deferredValidationTime: 0,
+                  key: 'listPickerFieldId',
+                  webAbsoluteUrl: this.properties.siteUrl,
+                  baseTemplate: 101
                 })
               ]
             }

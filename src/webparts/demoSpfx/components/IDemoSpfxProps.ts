@@ -2,12 +2,14 @@
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import { DisplayMode } from '@microsoft/sp-core-library';
 import { ListSubscriptionFactory } from '@microsoft/sp-list-subscription';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 //////////// DG - 09/09/2021
 
 export interface IDemoSpfxProps {
   themeVariant: IReadonlyTheme | undefined; // DG - 09/09/2021 - Supporting section backgrounds
   width: number;
   description: string;
+  wpContext: WebPartContext;
   /**
    * Web part display mode
    */

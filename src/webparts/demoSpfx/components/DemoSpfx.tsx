@@ -12,12 +12,20 @@ import { Guid } from '@microsoft/sp-core-library';
 import { IListSubscription } from '@microsoft/sp-list-subscription';
 //////////// DG - 09/09/2021
 
+// DG - 10/09/2021 - Data Service
+import { IDataService } from '../../../classes/services/IDataService';
+import DataServiceProvider from '../../../classes/services/DataServiceProvider';
+//////////// DG - 10/09/2021
+
 export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxState> {
   // DG - 10/09/2021 - Subscribe to list notifications
   private _listSubscription: IListSubscription;
+  // DG - 10/09/2021 - Data Service
+  private _dataService: IDataService;
   
   constructor(props: IDemoSpfxProps) {
     super(props);
+    this._dataService = DataServiceProvider.get(this.props.wpContext);
 
     this.state = {
       documents: [],
