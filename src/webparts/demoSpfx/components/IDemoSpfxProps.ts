@@ -4,5 +4,6 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 export interface IDemoSpfxProps {
   themeVariant: IReadonlyTheme | undefined; // DG - 09/09/2021 - Supporting section backgrounds
+  width: number;
   description: string;
 }

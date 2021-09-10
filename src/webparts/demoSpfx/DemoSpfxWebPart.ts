@@ -47,7 +47,8 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
     const element: React.ReactElement<IDemoSpfxProps> = React.createElement(
       DemoSpfx,
       {
-        themeVariant: this._themeVariant,
+        themeVariant: this._themeVariant, // DG - 09/09/2021 - Supporting section backgrounds
+        width: this.width, // DG - 10/09/2021 - Determine the rendered web part size
         description: this.properties.description
       }
     );
@@ -62,6 +63,12 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   protected get dataVersion(): Version {
     return Version.parse('1.0');
   }
+
+  // DG - 10/09/2021 - Determine the rendered web part size
+  protected onAfterResize(newWidth: number) {
+    console.log(`the new width of the web part is ${newWidth}`);
+  }
+  //////////// DG - 10/09/2021
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return {

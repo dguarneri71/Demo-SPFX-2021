@@ -11,6 +11,7 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, {}> {
   public render(): React.ReactElement<IDemoSpfxProps> {
 
     const { semanticColors }: IReadonlyTheme = this.props.themeVariant; // DG - 09/09/2021 - Supporting section backgrounds
+    var width: number = this.props.width; // DG - 10/09/2021 - Determine the rendered web part size
 
     return (
       <div className={styles.demoSpfx} style={{ backgroundColor: semanticColors.bodyBackground }}>
@@ -19,7 +20,7 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, {}> {
             <div className={styles.column}>
               <span className={styles.title}>Welcome to SharePoint!</span>
               <p className={styles.subTitle}>Customize SharePoint experiences using Web Parts.</p>
-              <p className={styles.description}>{escape(this.props.description)}</p>
+              <p className={styles.description}>{escape(this.props.description)} - {width}</p>
               <a href="https://aka.ms/spfx" className={styles.button}>
                 <span className={styles.label}>Learn more</span>
               </a>
