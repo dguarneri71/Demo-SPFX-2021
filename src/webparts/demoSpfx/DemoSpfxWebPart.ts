@@ -85,6 +85,7 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   // DG - 10/09/2021 - Determine the rendered web part size
   protected onAfterResize(newWidth: number) {
     console.log(`the new width of the web part is ${newWidth}`);
+    this.render();
   }
   //////////// DG - 10/09/2021
 
@@ -146,6 +147,7 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   //////////// DG - 09/09/2021
 
   // DG - 10/09/2021 - Subscribe to list notifications
+  // Mostra il pulsante "Apply"
   protected get disableReactivePropertyChanges(): boolean {
     return true;
   }

@@ -3,13 +3,14 @@ import styles from './DemoSpfx.module.scss';
 import { IDemoSpfxProps, IDemoSpfxState } from '.';
 import { escape } from '@microsoft/sp-lodash-subset';
 
-// DG - 09/09/2021 - Supporting section backgrounds
+// DG - 09/09/2021 - Supporting section backgrounds and Subscribe to list notification
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
-import { sp } from '@pnp/sp';
-import { IWeb, Web } from "@pnp/sp/webs";
-import { ISite, Site } from "@pnp/sp/sites";
 import { Guid } from '@microsoft/sp-core-library';
 import { IListSubscription } from '@microsoft/sp-list-subscription';
+import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/components/Spinner';
+import { ListView, SelectionMode } from "@pnp/spfx-controls-react/lib/ListView";
+import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 //////////// DG - 09/09/2021
 
 // DG - 10/09/2021 - Data Service
@@ -22,7 +23,7 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
   private _listSubscription: IListSubscription;
   // DG - 10/09/2021 - Data Service
   private _dataService: IDataService;
-  
+
   constructor(props: IDemoSpfxProps) {
     super(props);
     this._dataService = DataServiceProvider.get(this.props.wpContext);
@@ -66,28 +67,51 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
     const { error, documents, loading } = this.state;
     //////////// DG - 10/09/2021
 
-    //TODO - Devo cambiare il codice del render
     return (
       <div className={styles.demoSpfx} style={{ backgroundColor: semanticColors.bodyBackground }}>
-        <div className={styles.container}>
-          <div className={styles.row}>
-            <div className={styles.column}>
-              <span className={styles.title}>Welcome to SharePoint!</span>
-              <p className={styles.subTitle}>Customize SharePoint experiences using Web Parts.</p>
-              <p className={styles.description}>{escape(this.props.description)} - {width}</p>
-              <a href="https://aka.ms/spfx" className={styles.button}>
-                <span className={styles.label}>Learn more</span>
-              </a>
-            </div>
-          </div>
-        </div>
+        <WebPartTitle displayMode={this.props.displayMode}
+          title={this.props.title}
+          updateProperty={this.props.updateProperty} />
+        <div><p className={styles.description}>{escape(this.props.description)} (Width: {width})</p></div>
+        {needsConfiguration &&
+          <Placeholder
+            iconName='Edit'
+            iconText='Configure your web part'
+            description='Please configure the web part.'
+            buttonLabel='Configure'
+            onConfigure={onConfigure} />
+        }
+        {!needsConfiguration &&
+          loading &&
+          <div style={{ textAlign: 'center' }}><Spinner size={SpinnerSize.large} label="Loading documents..." /></div>}
+        {!needsConfiguration &&
+          !loading &&
+          error &&
+          <div style={{ textAlign: 'center' }}>The following error has occurred while loading documents: <span>{error}</span></div>}
+        {!needsConfiguration &&
+          !loading &&
+          documents.length === 0 &&
+          <div style={{ textAlign: 'center' }}>No documents found in the selected list</div>}
+        {!needsConfiguration &&
+          !loading &&
+          documents.length > 0 &&
+          <ListView
+            items={documents}
+            viewFields={[{
+              displayName: 'Name',
+              name: 'FileLeafRef',
+              linkPropertyName: 'FileRef'
+            }]}
+            iconFieldName="FileRef"
+            compact={false}
+            selectionMode={SelectionMode.none} />
+        }
       </div>
     );
   }
 
   /**
   * Loads documents from the selected document library
-  * TODO: portare codice in SPDataService
   */
   private _loadDocuments(): void {
     // communicate loading documents to the user
@@ -97,26 +121,19 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
       loading: true
     });
 
-    // if a site URL has been specified, use that site, otherwise assume,
-    // that the selected list is in the current site
-    const web: IWeb = this.props.siteUrl ? Web(this.props.siteUrl) : sp.web;
-    web.lists
-      .getById(this.props.libraryId)
-      // FileLeafRef contains the name of the file, FileRef contains the
-      // server-relative URL of the file to be used in the document link
-      .items.select('FileLeafRef', 'FileRef')
-      .orderBy('Modified', false)
-      .get()
-      // show retrieved documents, if any
-      .then(docs => this.setState({
-        documents: docs,
-        loading: false
-      }))
-      // show error
-      .catch(err => this.setState({
-        error: err,
-        loading: false
-      }));
+    this._dataService.loadDocuments(this.props.siteUrl, this.props.libraryId)
+      .then(docs => {
+        this.setState({
+          documents: docs,
+          loading: false
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err,
+          loading: false
+        });
+      });
   }
 
   /**
@@ -124,7 +141,7 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
    * ListSubscriptionFactory.
    * TODO: portare codice in SPDataService
    */
-   private _configureListSubscription(): void {
+  private _configureListSubscription(): void {
     if (!this.props.libraryId) {
       // no library selected. If there is an existing list subscription, remove it
       if (this._listSubscription) {
@@ -169,19 +186,12 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
    * 
    * @param siteUrl URL of the site collection for which to retrieve the ID
    */
-   private _getSiteCollectionId(siteUrl?: string): Promise<void | string> {
+  private _getSiteCollectionId(siteUrl?: string): Promise<void | string> {
     if (!siteUrl) {
       return Promise.resolve();
     }
 
-    return new Promise<string>((resolve: (siteId: string) => void, reject: (error: any) => void): void => {
-      const site: ISite = Site(siteUrl);
-      site.select('Id').get()
-        .then(({ Id }): void => {
-          resolve(Id);
-        })
-        .catch(err => reject(err));
-    });
+    return this._dataService.getSiteCollectionId(siteUrl);
   }
 
   /**
@@ -192,18 +202,19 @@ export default class DemoSpfx extends React.Component<IDemoSpfxProps, IDemoSpfxS
    * 
    * @param siteUrl URL of the site for which to retrieve the ID
    */
-   private _getSiteId(siteUrl?: string): Promise<void | string> {
+  private _getSiteId(siteUrl?: string): Promise<void | string> {
     if (!siteUrl) {
       return Promise.resolve();
     }
 
-    return new Promise<string>((resolve: (siteId: string) => void, reject: (error: any) => void): void => {
+    /* return new Promise<string>((resolve: (siteId: string) => void, reject: (error: any) => void): void => {
       const web: IWeb = Web(siteUrl);
       web.select('Id').get()
         .then(({ Id }): void => {
           resolve(Id);
         })
         .catch(err => reject(err));
-    });
+    }); */
+    return this._dataService.getSiteId(siteUrl);
   }
 }
