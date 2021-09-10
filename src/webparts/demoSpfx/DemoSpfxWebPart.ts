@@ -18,10 +18,14 @@ import {
   IReadonlyTheme,
   ISemanticColors
 } from '@microsoft/sp-component-base';
+import { ListSubscriptionFactory } from '@microsoft/sp-list-subscription';
 //////////// DG - 09/09/2021
 
 export interface IDemoSpfxWebPartProps {
   description: string;
+  libraryId?: string;
+  siteUrl?: string;
+  title: string;
 }
 
 export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebPartProps> {
@@ -49,7 +53,14 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
       {
         themeVariant: this._themeVariant, // DG - 09/09/2021 - Supporting section backgrounds
         width: this.width, // DG - 10/09/2021 - Determine the rendered web part size
-        description: this.properties.description
+        description: this.properties.description,
+        displayMode: this.displayMode, // DG - 10/09/2021 - Subscribe to list notifications
+        libraryId: this.properties.libraryId, // DG - 10/09/2021 - Subscribe to list notifications
+        listSubscriptionFactory: new ListSubscriptionFactory(this), // DG - 10/09/2021 - Subscribe to list notifications
+        onConfigure: this._onConfigure, // DG - 10/09/2021 - Subscribe to list notifications
+        siteUrl: this.properties.siteUrl, // DG - 10/09/2021 - Subscribe to list notifications
+        title: this.properties.title, // DG - 10/09/2021 - Subscribe to list notifications
+        updateProperty: value => this.properties.title = value // DG - 10/09/2021 - Subscribe to list notifications
       }
     );
 
@@ -103,4 +114,20 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
     this.render();
   }
   //////////// DG - 09/09/2021
+
+  // DG - 10/09/2021 - Subscribe to list notifications
+  protected get disableReactivePropertyChanges(): boolean {
+    return true;
+  }
+
+  protected onPropertyPaneConfigurationComplete(): void {
+    // ideally, we'd call a refresh here to update the list of properties
+    // but due to a bug in the list picker control, lists are loaded only
+    // on component mount, so this wouldn't do anything
+    // https://github.com/pnp/sp-dev-fx-property-controls/issues/109
+    // this.context.propertyPane.refresh();
+  }
+
+  private _onConfigure = () => this.context.propertyPane.open();
+  //////////// DG - 10/09/2021
 }
