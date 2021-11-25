@@ -37,9 +37,14 @@ export interface IDemoSpfxWebPartProps {
 export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebPartProps> {
   // DG - 09/09/2021 - Supporting section backgrounds
   private _themeProvider: ThemeProvider;
-  private _themeVariant: IReadonlyTheme | undefined;  
+  private _themeVariant: IReadonlyTheme | undefined;
+
+  protected onAfterDeserialize(deserializedObject: any, dataVersion: Version): any {
+    console.log("DemoSpfxWebPart - onAfterDeserialize");
+  }
 
   protected onInit(): Promise<void> {
+    console.log("DemoSpfxWebPart - onInit");
     // Consume the new ThemeProvider service
     this._themeProvider = this.context.serviceScope.consume(ThemeProvider.serviceKey);
 
@@ -54,6 +59,7 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   //////////// DG - 09/09/2021
 
   public render(): void {
+    console.log("DemoSpfxWebPart - render");
     const element: React.ReactElement<IDemoSpfxProps> = React.createElement(
       DemoSpfx,
       {
@@ -74,7 +80,12 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
     ReactDom.render(element, this.domElement);
   }
 
+  protected onBeforeSerialize(): void {
+    console.log("DemoSpfxWebPart - onBeforeSerialize");
+  }
+
   protected onDispose(): void {
+    console.log("DemoSpfxWebPart - onDispose");
     ReactDom.unmountComponentAtNode(this.domElement);
   }
 
@@ -89,7 +100,13 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   }
   //////////// DG - 10/09/2021
 
+  protected loadPropertyPaneResources(): Promise<void> {
+    console.log("DemoSpfxWebPart - PropertyPane - loadPropertyPaneResources");
+    return;
+  }
+
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+    console.log("DemoSpfxWebPart - PropertyPane - getPropertyPaneConfiguration");
     return {
       pages: [
         {
@@ -134,6 +151,19 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
     };
   }
 
+  protected onPropertyPaneRendered(): void {
+    console.log("DemoSpfxWebPart - PropertyPane - onPropertyPaneRendered");
+  }
+
+  protected onPropertyPaneConfigurationStart(): void {
+    console.log("DemoSpfxWebPart - PropertyPane - onPropertyPaneConfigurationStart");
+  }
+
+  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+    console.log("DemoSpfxWebPart - PropertyPane - onPropertyPaneFieldChanged");
+  }
+
+
   // DG - 09/09/2021 - Supporting section backgrounds
   /**
    * Update the current theme variant reference and re-render.
@@ -147,9 +177,9 @@ export default class DemoSpfxWebPart extends BaseClientSideWebPart<IDemoSpfxWebP
   //////////// DG - 09/09/2021
 
   // DG - 10/09/2021 - Subscribe to list notifications
-  // Mostra il pulsante "Apply"
+  // Mostra il pulsante "Apply" - non-reactive mode
   protected get disableReactivePropertyChanges(): boolean {
-    return true;
+    return true; //mettere FALSE per reactive mode, DEFAULT is reactive mode.
   }
 
   protected onPropertyPaneConfigurationComplete(): void {
