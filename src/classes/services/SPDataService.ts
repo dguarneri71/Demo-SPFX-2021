@@ -1,6 +1,7 @@
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import { IDataService } from "./IDataService";
 import { ICamlQuery, IItemAddResult, IList, ISite, ISiteGroupInfo, ISiteUser, IWeb, Site, sp, Web } from "@pnp/sp/presets/all";
+import { TestItem } from '../commons/TestItem';
 
 export default class SPDataService implements IDataService {
     // DG - 09/09/2021 - Using PnP/PnPjs
@@ -58,6 +59,33 @@ export default class SPDataService implements IDataService {
                     resolve(Id);
                 })
                 .catch(err => reject(err));
+        });
+    }
+
+    public loadItems(siteUrl: string, libraryId: string): Promise<TestItem[]> {
+        let result: TestItem[] = [];
+        return new Promise<any[]>((res, reject) => {
+            // if a site URL has been specified, use that site, otherwise assume,
+            // that the selected list is in the current site
+            const web: IWeb = siteUrl ? Web(siteUrl) : sp.web;
+            web.lists
+                .getById(libraryId)
+                // FileLeafRef contains the name of the file, FileRef contains the
+                // server-relative URL of the file to be used in the document link
+                .items.select('Title', 'NumericTest')
+                .get()
+                // show retrieved documents, if any
+                .then(items => {
+                    for (let index = 0; index < items.length; index++) {
+                        const element = items[index];
+                        result[index] = { "Title": element.Title, "NumricTest": element.NumericTest };
+                    }
+                    res(result);
+                })
+                // show error
+                .catch(err => {
+                    reject(err);
+                });
         });
     }
 }

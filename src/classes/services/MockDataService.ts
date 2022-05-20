@@ -1,6 +1,7 @@
+import { TestItem } from "../commons/TestItem";
 import { IDataService } from "./IDataService";
 
-export default class MockDataService implements IDataService {    
+export default class MockDataService implements IDataService {     
     public loadDocuments(siteUrl: string, libraryId: string): Promise<any[]> {
         return new Promise<any[]>((res, reject) => {
             let docs = [];
@@ -18,4 +19,8 @@ export default class MockDataService implements IDataService {
     public getSiteId(siteUrl?: string): Promise<string | void> {
         return Promise.resolve();
     }
+
+    public loadItems(siteUrl: string, libraryId: string): Promise<TestItem[]> {
+        throw new Error("Method not implemented.");
+    }   
 }

@@ -9,12 +9,21 @@
           "manifest": "./src/webparts/demoSpfx/DemoSpfxWebPart.manifest.json"
         }
       ]
+    },
+    "numeric-test-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/numericTest/NumericTestWebPart.js",
+          "manifest": "./src/webparts/numericTest/NumericTestWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "DemoSpfxWebPartStrings": "lib/webparts/demoSpfx/loc/{locale}.js",
     "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
-    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js",
+    "NumericTestWebPartStrings": "lib/webparts/numericTest/loc/{locale}.js"
   }
 }
